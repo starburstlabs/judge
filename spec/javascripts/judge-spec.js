@@ -45,7 +45,7 @@ describe('judge', function() {
       });
       it('calls second callback wth messages when queue is closed as invalid', function() {
         var first = jasmine.createSpy('first'), second = jasmine.createSpy('second');
-        el.value = ''
+        el.value = '';
         judge.validate(el, {
           valid: first,
           invalid: second
@@ -244,7 +244,7 @@ describe('judge', function() {
   });
 
   describe('eachValidators', function() {
-    var el, validator;
+    var el, validator, textarea;
     beforeEach(function() {
       el = document.createElement('input');
     });
@@ -260,23 +260,89 @@ describe('judge', function() {
         el.value = 'foo';
         expect(validator({}, { blank: 'Must not be blank' })).toBeValid();
       });
+      it('returns invalid Validation if radio has no selection', function() {
+        el.type  = 'radio';
+        el.name  = 'radio_group';
+        el.value = 'option1';
+        // eachValidators.presence for radio btns rely on querySelectorAll
+        // so we have to add the el to the body
+        document.body.appendChild(el);
+        expect(validator({}, { blank: 'Must not be blank' })).toBeInvalid();
+      });
+      it('returns valid Validation if radio has selection', function() {
+        el.type    = 'radio';
+        el.name    = 'radio_group';
+        el.value   = 'option1';
+        el.checked = true;
+        // eachValidators.presence for radio btns rely on querySelectorAll
+        // so we have to add the el to the body
+        document.body.appendChild(el);
+        expect(validator({}, { blank: 'Must not be blank' })).toBeValid();
+      });
     });
 
     describe('length', function() {
-      beforeEach(function() {
-        validator = _.bind(judge.eachValidators.length, el);
+      describe('length : single input', function() {
+        beforeEach(function() {
+          validator = _.bind(judge.eachValidators.length, el);
+        });
+        it('returns invalid Validation if value is too short', function() {
+          el.value = 'abc';
+          expect(validator({ minimum: 5 }, { too_short: '2 shrt' })).toBeInvalidWith(['2 shrt']);
+        });
+        it('returns invalid Validation if value is too long', function() {
+          el.value = 'abcdef';
+          expect(validator({ maximum: 5 }, { too_long: '2 lng' })).toBeInvalidWith(['2 lng']);
+        });
+        it('returns valid Validation for valid value', function() {
+          el.value = 'abc';
+          expect(validator({ minimum: 2, maximum: 5 }, {})).toBeValid();
+        });
       });
-      it('returns invalid Validation if value is too short', function() {
-        el.value = 'abc'
-        expect(validator({ minimum: 5 }, { too_short: '2 shrt' })).toBeInvalidWith(['2 shrt']);
+
+      describe('length', function() {
+        describe('length : textarea', function() {
+          beforeEach(function() {
+            textarea = document.createElement('textarea');
+            validator = _.bind(judge.eachValidators.length, textarea);
+          });
+          it('counts new lines as two characters', function() {
+            textarea.value = 'abc\nd';
+            expect(validator({ maximum: 5 }, { too_long: '2 lng' })).toBeInvalidWith(['2 lng']);
+          });
+          it('counts each variation of new line as two character', function() {
+            textarea.value = 'abc\nd\refg\r\nhi';
+            expect(validator({ is: 15 })).toBeValid();
+          });
+        });
       });
-      it('returns invalid Validation if value is too long', function() {
-        el.value = 'abcdef'
-        expect(validator({ maximum: 5 }, { too_long: '2 lng' })).toBeInvalidWith(['2 lng']);
-      });
-      it('returns valid Validation for valid value', function() {
-        el.value = 'abc';
-        expect(validator({ minimum: 2, maximum: 5 }, {})).toBeValid();
+
+      describe('length : multiple input', function() {
+        var options;
+        beforeEach(function() {
+          el = document.createElement('select');
+          options = {
+            option1 : 'text a',
+            option2 : 'text b',
+            option3 : 'text c'
+          };
+          for(var i in options) {
+            el.options[el.options.length] = new Option(options[i], i);
+          }
+          validator = _.bind(judge.eachValidators.length, el);
+        });
+
+        it('returns invalid Validation if array is too small', function() {
+          expect(validator({ minimum: 4 }, { too_short: '2 shrt' })).toBeInvalidWith(['2 shrt']);
+        });
+
+        it('returns invalid Validation if array is too big', function() {
+          expect(validator({ maximum: 2 }, { too_long: '2 lng' })).toBeInvalidWith(['2 lng']);
+        });
+
+        it('returns valid Validation for valid size of array', function() {
+          expect(validator({ minimum: 2, maximum: 5 }, {})).toBeValid();
+        });
       });
     });
 
@@ -388,6 +454,26 @@ describe('judge', function() {
           el.value = 'AbC';
           expect(validator({ 'with': '(?-mix:[A-Za-z]+)' }, {})).toBeValid();
         });
+
+        it('converts devise\'s Ruby email regex and returns invalid with invalid email', function() {
+          el.value = 'not an email';
+          expect(validator({ 'with': '(?-mix:\\A[^@\\s]+@([^@\\s]+\\.)+[^@\\s]+\\z)' }, { invalid: 'is invalid' })).toBeInvalidWith(['is invalid']);
+        });
+
+        it('converts devise\'s Ruby email regex and returns valid with valid email', function() {
+          el.value = 'john.doe@somesite.com';
+          expect(validator({ 'with': '(?-mix:\\A[^@\\s]+@([^@\\s]+\\.)+[^@\\s]+\\z)' }, {})).toBeValid();
+        });
+
+        it('converts a Ruby slug regex and returns invalid with invalid slug', function() {
+          el.value = 'not an slug.';
+          expect(validator({ 'with': '(?-mix:\\A[-a-zA-Z0-9]+\\z)' }, { invalid: 'is invalid' })).toBeInvalidWith(['is invalid']);
+        });
+
+        it('converts a Ruby slug regex and returns valid with valid slug', function() {
+          el.value = 'this-is-a-slug';
+          expect(validator({ 'with': '(?-mix:\\A[-a-zA-Z0-9]+\\z)' }, {})).toBeValid();
+        });
       });
 
       describe('without', function() {
@@ -421,11 +507,11 @@ describe('judge', function() {
     describe('confirmation', function() {
       var confEl;
       beforeEach(function() {
-        validator = _.bind(judge.eachValidators.confirmation, el);
-        el.id = 'pw';
+        el.id = 'pw_confirmation';
         confEl = document.createElement('input');
-        confEl.id = 'pw_confirmation';
+        confEl.id = 'pw';
         document.body.appendChild(confEl);
+        validator = _.bind(judge.eachValidators.confirmation, el);
       });
       afterEach(function() {
         document.body.removeChild(confEl);
@@ -446,7 +532,8 @@ describe('judge', function() {
         validator  = _.bind(judge.eachValidators.uniqueness, el);
         el.value   = 'leader@team.com';
         el.name    = 'team[leader][email]';
-        el.setAttribute('data-validate', uniquenessAttr)
+        el.setAttribute('data-validate', uniquenessAttr);
+        el.setAttribute('data-klass', 'Leader');
       });
       it('returns a pending Validation', function() {
         validation = validator({}, {});

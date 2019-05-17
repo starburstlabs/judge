@@ -1,4 +1,4 @@
-// Judge 2.0.5
+// Judge 2.1.1
 // (c) 2011-2013 Joe Corcoran
 // http://raw.github.com/joecorcoran/judge/master/LICENSE.txt
 
@@ -14,7 +14,7 @@
   var judge = root.judge = {},
       _     = root._;
 
-  judge.VERSION = '2.0.5';
+  judge.VERSION = '2.1.1';
 
   // Trying to be a bit more descriptive than the basic error types allow.
   var DependencyError = function(message) {
@@ -78,7 +78,7 @@
   var convertRegExp = function(string) {
     var parts  = string.slice(1, -1).split(':'),
         flags  = parts.shift().replace('?', ''),
-        source = parts.join(':').replace(/\\\\/g, '\\');
+        source = parts.join(':').replace(/\\\\/g, '\\').replace('\\A', '^').replace('\\z', '$');
     return new RegExp(source, convertFlags(flags));
   };
 
@@ -121,21 +121,6 @@
       }
       return attr;
     };
-    classFromName = function(name) {
-      var bracketed, klass = '';
-      if (bracketed = name.match(/\[(\w+)\]/g)) {
-        klass = (bracketed.length > 1) ? camelize(debracket(bracketed[0])) : name.match(/^\w+/)[0];
-      }
-      return klass;
-    };
-    debracket = function(str) {
-      return str.replace(/\[|\]/g, '');
-    };
-    camelize = function(str) {
-      return str.replace(/(^[a-z]|\_[a-z])/g, function($1) {
-        return $1.toUpperCase().replace('_','');
-      });
-    };
     originalValue = function(el) {
       var validations = JSON.parse(el.getAttribute('data-validate'));
       var validation = _.filter(validations, function (validation) { return validation.kind === "uniqueness"})[0];
@@ -147,7 +132,7 @@
   var urlFor = judge.urlFor = function(el, kind) {
     var path   = judge.enginePath,
         params = {
-          'klass'    : classFromName(el.name),
+          'klass'    : el.getAttribute('data-klass'),
           'attribute': attrFromName(el.name),
           'value'    : el.value,
           'kind'     : kind
@@ -272,7 +257,12 @@
   judge.eachValidators = {
     // ActiveModel::Validations::PresenceValidator
     presence: function(options, messages) {
-      return closed(this.value.length ? [] : [messages.blank]);
+      if (this.type === 'radio') {
+        var is_selected = root.document.querySelectorAll('[name="'+this.name+'"]:checked').length;
+        return closed(is_selected ? [] : [messages.blank]);
+      } else {
+        return closed(this.value.length ? [] : [messages.blank]);
+      }
     },
 
     // ActiveModel::Validations::LengthValidator
@@ -284,7 +274,10 @@
             is:      { operator: '!=', message: 'wrong_length' }
           };
       _(types).each(function(properties, type) {
-        var invalid = operate(this.value.length, properties.operator, options[type]);
+        var length = this.length || this.value.length;
+        // Rails validations count new lines as two characters, we account for them here
+        length += (this.value.match(/\n/g) || []).length;
+        var invalid = operate(length, properties.operator, options[type]);
         if (_(options).has(type) && invalid) {
           msgs.push(messages[properties.message]);
         }
@@ -368,7 +361,7 @@
     // ActiveModel::Validations::ConfirmationValidator
     confirmation: function(options, messages) {
       var id       = this.getAttribute('id'),
-          confId   = id + '_confirmation',
+          confId   = id.replace('_confirmation', ''),
           confElem = root.document.getElementById(confId);
       return closed(
         this.value === confElem.value ? [] : [messages.confirmation]
