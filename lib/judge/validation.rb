@@ -33,7 +33,7 @@ module Judge
     end
 
     def as_json(options = {})
-      record.errors.get(@attribute) || []
+      record.errors.messages_for(@attribute)
     end
   end
 

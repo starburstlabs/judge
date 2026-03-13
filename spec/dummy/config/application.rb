@@ -4,7 +4,11 @@ require File.expand_path('../boot', __FILE__)
 require "active_record/railtie"
 require "action_controller/railtie"
 require "action_mailer/railtie"
-require "sprockets/railtie"
+begin
+  require "sprockets/railtie"
+rescue LoadError
+  # sprockets not available in Rails 7.2+
+end
 
 Bundler.require
 require "judge"
@@ -50,11 +54,11 @@ module Dummy
     # parameters by using an attr_accessible or attr_protected declaration.
     # config.active_record.whitelist_attributes = true
 
-    # Enable the asset pipeline
-    config.assets.enabled = true
-
-    # Version of your assets, change this if you want to expire all your assets
-    config.assets.version = '1.0'
+    # Enable the asset pipeline (when sprockets is available)
+    if config.respond_to?(:assets)
+      config.assets.enabled = true
+      config.assets.version = '1.0'
+    end
 
     config.i18n.enforce_available_locales = false if Rails::VERSION::MAJOR >= 4
   end

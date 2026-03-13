@@ -17,3 +17,10 @@ end
 appraise 'rails_4_2' do
   gem 'rails', '4.2.0.rc1'
 end
+
+appraise 'rails_7_2' do
+  gem 'rails', '~> 7.2.3'
+  gem 'rspec-rails', '~> 7.0'
+  gem 'sqlite3', '~> 2.1'
+  gem 'factory_bot', '~> 6.0'
+end
