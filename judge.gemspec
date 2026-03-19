@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
   s.files = Dir['{app,config,lib,vendor}/**/*'] + ['LICENSE.txt', 'README.md']
   s.license = 'MIT'
 
-  s.add_runtime_dependency     'rails',                  '~> 7.2.3'
+  s.add_runtime_dependency     'rails',                  '>= 7.2', '< 9'
 
   s.add_development_dependency 'rspec-rails',            '~> 7.0'
   s.add_development_dependency 'rspec-extra-formatters', '~> 1.0'
