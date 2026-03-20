@@ -43,5 +43,6 @@ ActiveRecord::Schema[7.2].define(version: 2012_04_26_221506) do
     t.string "time_zone"
     t.integer "discipline_id"
     t.string "city"
+    t.string "telephone"
   end
 end
