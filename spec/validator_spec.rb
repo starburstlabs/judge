@@ -3,7 +3,7 @@ require "spec_helper"
 describe Judge::Validator do
   
   before(:each) do
-    user = FactoryGirl.build(:user)
+    user = FactoryBot.build(:user)
     amv = User.validators_on(:name).first 
     @validator = Judge::Validator.new(user, :name, amv)
   end

@@ -30,19 +30,6 @@ module Judge
       Regexp.new(str)
     end
 
-    def json_regexp(regexp)
-      str = regexp.inspect.
-        sub('\\A' , '^').
-        sub('\\Z' , '$').
-        sub('\\z' , '$').
-        sub(/^\// , '').
-        sub(/\/[a-z]*$/ , '').
-        gsub(/\(\?#.+\)/ , '').
-        gsub(/\(\?-\w+:/ , '(').
-        gsub(/\s/ , '')
-      Regexp.new(str)
-    end
-
     def to_hash
       params = {
         :kind => kind,

@@ -2,7 +2,7 @@ require "spec_helper"
 
 describe Judge::MessageCollection do
 
-  let(:user) { FactoryGirl.build(:user) }
+  let(:user) { FactoryBot.build(:user) }
 
   it "has to_hash method which returns messages hash" do
     amv = User.validators_on(:name).first

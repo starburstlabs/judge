@@ -3,7 +3,7 @@ require "spec_helper"
 describe Judge::ConfirmationValidator do
 
   let :password_confirmation  do
-    user = FactoryGirl.build(:user)
+    user = FactoryBot.build(:user)
     Judge::ConfirmationValidator.new(user, :password_confirmation)
   end
 

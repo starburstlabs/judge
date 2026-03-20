@@ -42,7 +42,7 @@ describe Judge::ValidationsController, type: :controller do
         response.body.should eql "[]"
       end
       it "responds with empty JSON array if original_value equals the value" do
-        FactoryGirl.create(:user, username: 'tinbucktwo')
+        FactoryBot.create(:user, username: 'tinbucktwo')
         get :build, params: valid_params
         response.should be_successful
         response.body.should eql "[]"

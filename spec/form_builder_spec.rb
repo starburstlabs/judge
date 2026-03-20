@@ -5,12 +5,12 @@ describe Judge::FormBuilder do
   let(:builder) do
     lookup_context = ActionView::LookupContext.new(ActionController::Base.view_paths)
     view = ActionView::Base.with_empty_template_cache.new(lookup_context, {}, nil)
-    Judge::FormBuilder.new(:user, FactoryGirl.build(:user), view, {})
+    Judge::FormBuilder.new(:user, FactoryBot.build(:user), view, {})
   end
   let(:categories) do
-    category = FactoryGirl.build(:category)
-    sport = FactoryGirl.build(:sport)
-    sport.disciplines << FactoryGirl.build_list(:discipline, 3)
+    category = FactoryBot.build(:category)
+    sport = FactoryBot.build(:sport)
+    sport.disciplines << FactoryBot.build_list(:discipline, 3)
     category.sports << sport
     [category]
   end
@@ -43,7 +43,7 @@ describe Judge::FormBuilder do
   end
 
   specify "#collection_select" do
-    cs = builder.collection_select(:team_id, FactoryGirl.create_list(:team, 5), :id, :name, :validate => true)
+    cs = builder.collection_select(:team_id, FactoryBot.create_list(:team, 5), :id, :name, :validate => true)
     cs.should match expected
   end
 
