@@ -4,11 +4,7 @@ require File.expand_path('../boot', __FILE__)
 require "active_record/railtie"
 require "action_controller/railtie"
 require "action_mailer/railtie"
-begin
-  require "sprockets/railtie"
-rescue LoadError
-  # sprockets not available in Rails 7.2+
-end
+require "sprockets/railtie" if Rails::VERSION::MAJOR < 7 || (Rails::VERSION::MAJOR == 7 && Rails::VERSION::MINOR < 2)
 
 Bundler.require
 require "judge"

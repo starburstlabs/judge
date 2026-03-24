@@ -1,9 +1,0 @@
-{
-  "lsp": {
-    "ruby": {
-      "command": ["ruby-lsp"],
-      "languages": ["ruby"],
-      "filePatterns": ["**/*.rb", "Gemfile", "Rakefile", "*.gemspec"]
-    }
-  }
-}
