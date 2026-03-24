@@ -10,7 +10,7 @@ FactoryBot.define do
     time_zone { "London" }
     discipline
     team
-    telephone{ rand(10**9..10**10).to_s }
+    telephone { rand(10**9..10**10).to_s }
   end
 
   factory :team do
