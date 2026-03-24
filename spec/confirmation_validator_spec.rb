@@ -3,7 +3,7 @@ require "spec_helper"
 describe Judge::ConfirmationValidator do
 
   let :password_confirmation  do
-    user = FactoryGirl.build(:user)
+    user = FactoryBot.build(:user)
     Judge::ConfirmationValidator.new(user, :password_confirmation)
   end
 
@@ -25,7 +25,7 @@ describe Judge::ConfirmationValidator do
   end
 
   describe '#options' do
-    it "should return the original amv's options (an empty hash)" do
+    it "should return the original amv's options" do
       expect(password_confirmation.options).to eq(password_confirmation.amv.options)
     end
   end

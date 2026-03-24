@@ -38,25 +38,25 @@ describe Judge::ValidationsController, type: :controller do
       }
       it "responds with empty JSON array if valid" do
         get :build, params: valid_params
-        response.should be_success
+        response.should be_successful
         response.body.should eql "[]"
       end
       it "responds with empty JSON array if original_value equals the value" do
-        FactoryGirl.create(:user, username: 'tinbucktwo')
+        FactoryBot.create(:user, username: 'tinbucktwo')
         get :build, params: valid_params
-        response.should be_success
+        response.should be_successful
         response.body.should eql "[]"
       end
       it "responds with JSON array of error messages if invalid" do
         get :build, params: invalid_params
-        response.should be_success
+        response.should be_successful
         response.body.should eql "[\"City must be an approved city\"]"
       end
     end
     describe "when not allowed" do
       it "responds with JSON array of error messages if class and attribute are not allowed in Judge config" do
         get :build, params: valid_params
-        response.should be_success
+        response.should be_successful
         response.body.should eql "[\"Judge validation for User#username not allowed\"]"
       end
     end

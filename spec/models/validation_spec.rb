@@ -3,7 +3,7 @@ require 'spec_helper'
 describe "validations" do
 
   before(:all) do
-    FactoryGirl.create(:user, :username => "existing")
+    FactoryBot.create(:user, :username => "existing")
   end
   let(:valid_params) do
     {

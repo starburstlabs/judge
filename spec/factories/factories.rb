@@ -1,16 +1,16 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :user do
     dob { Time.new(2011,11,5, 17,00,00) }
     sequence(:name) { |n| "User #{n}" }
-    age 40
-    bio "I'm a user"
+    age { 40 }
+    bio { "I'm a user" }
     sequence(:password) { |n| "password_#{n}" }
     gender { ["male", "female", "other", "withheld"].sample }
-    city "London"
-    time_zone "London"
+    city { "London" }
+    time_zone { "London" }
     discipline
     team
-    telephone{ rand(10**9..10**10).to_s }
+    telephone { rand(10**9..10**10).to_s }
   end
 
   factory :team do
